@@ -40,8 +40,20 @@ const getSector = sectorNumber => {
     `;
 };
 
+function renderArenaBack() {
+var f=$.get('question', {}, function(answer){
+
+    f = JSON.parse(answer);
+    return f;
+});
+console.log(f.type);
+return f;
+}
+
 const renderArena = () => {
     const arenaElem = document.querySelector('.arena');
+    var howElem = renderArenaBack();
+   //console.log(howElem.type);
     const sectorsString = generateNumbersRange(1, 1)
         .map(getSector)
         .join('');
