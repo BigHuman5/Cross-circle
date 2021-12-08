@@ -1,6 +1,6 @@
 <?php
 include $_SERVER['DOCUMENT_ROOT'].'/php/bd.php';
-//include $_SERVER['DOCUMENT_ROOT'].'/php/logic/logic.php';
+include 'logic.php';
 $requestUri = $_SERVER["REQUEST_URI"];
 $path = explode("/", $requestUri);
 $requestMethod = $_SERVER["REQUEST_METHOD"];
@@ -9,6 +9,11 @@ $json = [
 ];
     if($requestMethod == "GET") // Узнаём что метод гет
     { 
+        if((explode("?", $requestUri) !== false) && ($CatURL[0] == "game"))
+        {
+            echo "I am die!";
+            die();
+        }
         $s_id=session_id();
         if(explode("?", $path[2]) !== false) // Проверка на ошибку.
         {
@@ -38,9 +43,24 @@ $json = [
             }
             else echo json_encode($json);
         }
-        elseif($CatURL[0] == "game")
+        elseif($CatURL[0] == "game")      
         {
-            if(count(explode("?", $path[2])) > 1) // Проверка на ошибку.
+            /* Первая просто передаёт значения во фронт сколько рисовать. Вторая уже хода. Юзается для $type */
+            $query = "SELECT * FROM actual_games WHERE id_session = '$s_id';";
+            $result = mysqli_query($link,$query) or die(mysqli_error($link));
+            if(mysqli_num_rows($result) != 0)
+            {
+                while ($row = mysqli_fetch_array($result)) $type = $row['type'];
+                $json = [
+                    'type' => $type,
+                ]; 
+            }
+            else {
+                $json = [
+                    'type' => 0,
+                ];
+            }
+            if(count(explode("?", $path[2])) > 1) // Штука нужна передачи того ходов
             {
                 $CatURL = explode("?", $path[2]);
                 $CatURL = explode("&", $CatURL[1]);
@@ -48,9 +68,9 @@ $json = [
                 $linenumber = explode("=", $CatURL[1]);
                 if($seatnumber[0] == "seatNumber" && $linenumber[0] == "lineNumber") 
                 {
-                    if($seatnumber[1]>0 && $seatnumber[1]<8 && $linenumber[1]>0 && $linenumber[1]<8)
+                    if($seatnumber[1]>0 && $seatnumber[1]<=$type && $linenumber[1]>0 && $linenumber[1]<=$type)
                     {
-                        $query = "SELECT * FROM actual_games WHERE id_session = '$s_id';";
+                        /*$query = "SELECT * FROM actual_games WHERE id_session = '$s_id';";
                         $result = mysqli_query($link,$query) or die(mysqli_error($link));
                         while ($row = mysqli_fetch_array($result)) $type = $row['type']; 
                         $json = [
@@ -58,18 +78,10 @@ $json = [
                         'move_1' => '23,12,13',
                         'move_2' => '11,22,33',
                         'win' => '11,22,33',
-                        ]; 
+                        ]; */
+                        $json = checkLogic($seatnumber[1],$linenumber[1]);
                     }
                 }
-            }
-            else
-            {
-                $query = "SELECT * FROM actual_games WHERE id_session = '$s_id';";
-                $result = mysqli_query($link,$query) or die(mysqli_error($link));
-                while ($row = mysqli_fetch_array($result)) $type = $row['type']; 
-                $json = [
-                    'type' => $type, 'lvl' => 0
-                ];
             }
             echo json_encode($json);       
         }
