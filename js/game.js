@@ -9,7 +9,7 @@ const generateNumbersRange = (start, end) => {
 };
 
 const getSectorLine = lineNumber => {
-    const seats = generateNumbersRange(1, type)
+    const seats = generateNumbersRange(1, option.type)
         .map(number => `
             <div
                 class="sector__seat"
@@ -27,7 +27,7 @@ const getSectorLine = lineNumber => {
 }
 
 const getSector = sectorNumber => {
-    const sectorLinesString = generateNumbersRange(1, type)
+    const sectorLinesString = generateNumbersRange(1, option.type)
         .map(getSectorLine)
         .join('');
     
@@ -44,14 +44,15 @@ function render(seatNumber,lineNumber){
     //console.log(json);
     $.get('question/game',{seatNumber,lineNumber}, function(answer){ // Посылает запрос на сервер о том сколько клеток.
         option = JSON.parse(answer);
+        if (typeof option.lvl === 'undefined') { console.log("NULL")};
         type = option.type;
         console.log(option);
-        renderArena(type);
+        renderArena(option);
     });
 }
 
 
-const renderArena = (type) => { // обработка
+const renderArena = (option) => { // обработка
     const arenaElem = document.querySelector('.arena');
     const sectorsString = generateNumbersRange(1, 1)
         .map(getSector)
