@@ -70,15 +70,6 @@ $json = [
                 {
                     if($seatnumber[1]>0 && $seatnumber[1]<=$type && $linenumber[1]>0 && $linenumber[1]<=$type)
                     {
-                        /*$query = "SELECT * FROM actual_games WHERE id_session = '$s_id';";
-                        $result = mysqli_query($link,$query) or die(mysqli_error($link));
-                        while ($row = mysqli_fetch_array($result)) $type = $row['type']; 
-                        $json = [
-                        'type' => $type,
-                        'move_1' => '23,12,13',
-                        'move_2' => '11,22,33',
-                        'win' => '11,22,33',
-                        ]; */
                         $json = checkLogic($seatnumber[1],$linenumber[1]);
                     }
                 }
