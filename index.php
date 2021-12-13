@@ -19,6 +19,11 @@ elseif ($path[0] == "question"){
     die();
 }
 
+elseif ($path[0] == "statics"){ 
+    include "php/view/statics.php";
+    die();
+}
+
 else{
     include "php/errors/error404.php";
     die();

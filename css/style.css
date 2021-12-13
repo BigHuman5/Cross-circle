@@ -81,5 +81,82 @@ header {
   width: 137px;
   background-color: #FFE4C4;
   cursor: pointer;
-  border: 1px solid #FA9284; }
+  border: 1px solid #FA9284; 
+}
+/**/
+.padding
+{
+  height: 150px;
+}
+.general__state
+{
+  padding-bottom: 15px;
+}
+
+.state
+{
+  position:flex;
+  width: 70%;
+  max-width: 1200px;
+}
+.state h1
+{
+  padding-top:107px;
+  font-size: 72px;
+  line-height: 98px;
+  color: #FF6738;
+  text-align: center;
+  text-transform: uppercase;
+}
+.state__title
+{
+  font-size: 48px;
+  margin-top: 15px;
+  line-height: 33px;
+  color: #FF6738;
+  text-align: center;
+}
+
+.state__container
+{
+  display: flex;
+  margin-top: 45px;
+}
+
+.state__item
+{
+  width: 33%;
+  border: 1px solid #FA9284; 
+  color: #FF6738;
+  text-align: center;
+}
+
+.item__cont
+{
+  display: flex;
+  font-size:21;
+}
+
+.item__title
+{
+  font-size: 21px;
+  line-height: 33px;
+  border-bottom: 1px solid #FA9284; 
+}
+
+.item__info
+{ 
+  width: 20%;
+  text-align:justify;
+}
+
+.item__text
+{
+  width: 100%;
+  margin-top:5px;
+}
+.item__text:first-child
+{
+  width:80%;
+}
 /*# sourceMappingURL=style.css.map */
