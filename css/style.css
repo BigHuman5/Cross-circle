@@ -83,6 +83,14 @@ header {
   cursor: pointer;
   border: 1px solid #FA9284; 
 }
+.sector__seat__red
+{
+  height: 130px;
+  width: 137px;
+  background-color: #472b08;
+  cursor: pointer;
+  border: 1px solid #FA9284; 
+}
 /**/
 .padding
 {

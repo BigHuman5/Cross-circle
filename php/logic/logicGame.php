@@ -18,8 +18,7 @@
 function checkMove($positionNumber,$link)
 {
     $s_id=session_id();
-    //$query = "SELECT id_session,position FROM actual_moves WHERE id_session = '$s_id' && position = '$positionNumber';";
-    $query = "SELECT id_session,position FROM actual_moves WHERE id_session = 'fad' && position = '$positionNumber';";
+    $query = "SELECT id_session,position FROM actual_moves WHERE id_session = '$s_id' && position = '$positionNumber';";
     $result = mysqli_query($link,$query) or die(mysqli_error($link));
     if(mysqli_num_rows($result) != 0)
     {
@@ -33,14 +32,13 @@ function checkMove($positionNumber,$link)
 
 function checkBD()
 {
+    $s_id=session_id();
     include $_SERVER['DOCUMENT_ROOT'].'/php/bd.php';
-    //  $query = "SELECT g.type,g.lvl, m.id, m.id_session, m.who_move, m.position FROM actual_moves m, actual_games g WHERE m.id_session = '$s_id' && g.id_session = m.id_session GROUP by m.id, g.type";
-    $query = "SELECT g.type, g.lvl, m.id, m.id_session, m.who_move, m.position FROM actual_moves m, actual_games g WHERE m.id_session = 'fad' && g.id_session = m.id_session GROUP by m.id, g.type, g.lvl ORDER BY m.position";
+    $query = "SELECT g.type, g.lvl, m.id, m.id_session, m.who_move, m.position FROM actual_moves m, actual_games g WHERE m.id_session = '$s_id' && g.id_session = m.id_session GROUP by m.id, g.type, g.lvl ORDER BY m.position";
     $result = mysqli_query($link,$query) or die(mysqli_error($link));
     if(mysqli_num_rows($result) == 0)
         {
-            echo "I am die!";
-            die();
+            return null;
         }
     else 
         {
@@ -54,9 +52,8 @@ function editBD($type,$info,$who_win)
     include $_SERVER['DOCUMENT_ROOT'].'/php/bd.php';
     if(($type == 0) || ($type == 1)) //Добавление новой позиции от компьютера и человека
     {
-    //  $query = "INSERT actual_moves(id_session,who_move,position) VALUES ('$s_id',$type,$info)";
-    $query = "INSERT actual_moves(id_session,who_move,position) VALUES ('fad',$type,$info)";
-    $result = mysqli_query($link,$query) or die(mysqli_error($link));
+     $query = "INSERT actual_moves(id_session,who_move,position) VALUES ('$s_id',$type,$info)";
+     $result = mysqli_query($link,$query) or die(mysqli_error($link));
     }
     elseif($type == 3) //Ничья или победа кого
     {
@@ -66,14 +63,14 @@ function editBD($type,$info,$who_win)
             $anType = $row['type'];
             $lvl = $row['lvl'];
         }
-        //$query = "INSERT statics(id_session,type,lvl,who_win) VALUES ('$s_id',$anType,$lvl,$who_win)";
-        $query = "INSERT statics(id_session,type,lvl,who_win) VALUES ('fad',$anType,$lvl,$who_win)";
+
+        $query = "INSERT statics(id_session,type,lvl,who_win) VALUES ('$s_id',$anType,$lvl,$who_win)";
+        $result = mysqli_query($link,$query) or die(mysqli_error($link));
+        
+        $query = "DELETE FROM actual_games WHERE id_session = '$s_id';";
         $result = mysqli_query($link,$query) or die(mysqli_error($link));
 
-        $query = "DELETE FROM actual_games WHERE id_session = 'fad';";
-        $result = mysqli_query($link,$query) or die(mysqli_error($link));
-
-        $query = "DELETE FROM actual_moves WHERE id_session = 'fad';";
+        $query = "DELETE FROM actual_moves WHERE id_session = '$s_id';";
         $result = mysqli_query($link,$query) or die(mysqli_error($link));
     }
 }
@@ -114,9 +111,10 @@ function createTable($link)
     return $table;
 }
 
-function checkWinner($link)
+function checkWinner($link,$info)
 {
-    $table = createTable($link);
+    if($info == 0) $table = createTable($link);
+    else $table=$info;
     $type = $table[0][0];
     if($type == 3) $how=2;
     else $how=3;
@@ -130,16 +128,20 @@ function checkWinner($link)
             for($z=1;$z<$type;$z++)
             {
                 $w=$z+1;
-                    if (($table[$p][$z] == $i) && ($table[$p][$w] == $i))
+                if (($table[$p][$z] == $i) && ($table[$p][$w] == $i))
+                {
+                    $n=$p*10+$z;
+                    if($howrepeat == 0) $json="$n";
+                    else $json="$json, $n";
+                    if($w == $type)  {$n=$p*10+$w; $json="$json, $n"; } 
+                    $howrepeat++;
+                    if($howrepeat == $how)   
                     {
-                        $n=$p*10+$z;
-                        if($howrepeat == 0) $json="$n";
-                        else $json="$json, $n";
-                        if($w == $type)  {$n=$p*10+$w; $json="$json, $n"; } 
-                        $howrepeat++;
-                        if($howrepeat == $how)   return printJSON(1,$json,$i);
+                        if($info == 0) return printJSON(1,$json,$i);
+                        else return $i;
                     }
-                    else { $howrepeat=0; $json = ""; }
+                }
+                else { $howrepeat=0; $json = ""; }
             }
             $howrepeat=0; $json = "";
         }
@@ -156,8 +158,11 @@ function checkWinner($link)
                         else $json="$json, $n";
                         if($w == $type)  {$n=$w*10+$p; $json="$json, $n"; } 
                         $howrepeat++;
-                        if($howrepeat == $how) return printJSON(1,$json,$i);
-                        
+                        if($howrepeat == $how) 
+                        {
+                            if($info == 0) return printJSON(1,$json,$i);
+                            else return $i;
+                        }
                     }
                     else { $howrepeat=0; $json = ""; }
             }
@@ -187,7 +192,8 @@ function checkWinner($link)
                 {
                     $n=$yn*10+$xn;
                     $json="$json, $n";
-                    return printJSON(1,$json,$i);
+                    if($info == 0) return printJSON(1,$json,$i);
+                    else return $i;
                 } 
             }
             $x++;
@@ -215,7 +221,7 @@ function checkWinner($link)
         // Наклон справа налево//
         $while = 1;
         if($type != 3) $x=4;
-        else $x=1;
+        else $x=3;
         $y=1;
         $lol=0;
         if($type != 3) $startpositionx=4;
@@ -236,10 +242,10 @@ function checkWinner($link)
                 {
                     $n=$yn*10+$xn;
                     $json="$json, $n";
-                    return printJSON(1,$json,$i);
+                    if($info == 0) return printJSON(1,$json,$i);
+                    else return $i;
                 } 
             }
-            //echo nl2br("$y | $x | $yn | $xn\n",false);
             $x--;
             $y++;
             $lol++;
@@ -262,6 +268,7 @@ function checkWinner($link)
             }
         }
     }
+    return null;
 }
 
 function checkDraw($link)
@@ -286,6 +293,40 @@ function newposition($link)
     $table = createTable($link);
     $type = $table[0][0];
     $lvl = $table[0][1];
+
+    for($y=1;$y<=$type;$y++)
+    {
+        for($x=1;$x<=$type;$x++)
+        {
+            $meaning_table=$table[$y][$x];
+            if($meaning_table == 2)
+            {
+                $table[$y][$x] = 0;
+                $newpos=checkWinner($link,$table);
+                if($newpos != null)
+                {
+                $newpos = $y*10+$x;
+                $lvl=15; // Победит компьютер
+                $x=$type+1;
+                $y=$type+1;
+                }
+                else
+                {
+                    $table[$y][$x] = 1;
+                    $newpos=checkWinner($link,$table);
+                    if($newpos != null)
+                    {
+                        $newpos = $y*10+$x;
+                        $lvl=15; // Мешаем победить человеку.
+                        $x=$type+1;
+                        $y=$type+1;
+                    }
+                }
+                $table[$y][$x]=$meaning_table;
+            }
+        }
+    }
+
     if($lvl == 1)
     {
         $while=0;
@@ -311,25 +352,29 @@ function printJSON($type,$json,$info)
     {
         $result = checkBD();
         $i=0;
-        while ($row = mysqli_fetch_array($result))
+        if($result != null)
         {
-            $type = $row['type'];
-            if($row['who_move'] == 0) $position[0][$i] = $row['position'];
-            elseif($row['who_move'] == 1) $position[1][$i] = $row['position'];
-            $i++;
+            while ($row = mysqli_fetch_array($result))
+            {
+                $type = $row['type'];
+                if($row['who_move'] == 0) $position[0][$i] = $row['position'];
+                elseif($row['who_move'] == 1) $position[1][$i] = $row['position'];
+                $i++;
+            }
+            if(isset($position[0])) $position0 = implode(",", $position[0]);
+            else $position0=0;
+            if(isset($position[1])) $position1 = implode(",", $position[1]);
+            else $position1=0;
+            $json = [
+                'type' => $type[0],
+                'move_1' => $position0,
+                'move_2' => $position1,
+                'who_win' => 4,
+                'win' => 0
+            ];
+            return $json;
         }
-        if(isset($position[0])) $position0 = implode(",", $position[0]);
-        else $position0=0;
-        if(isset($position[1])) $position1 = implode(",", $position[1]);
-        else $position1=0;
-        $json = [
-            'type' => $type[0],
-            'move_1' => $position0,
-            'move_2' => $position1,
-            'who_win' => 4,
-            'win' => 0
-        ];
-        return $json;
+        else return $result;
     }
     elseif ($type == 1) // Новая или ничья
     {
@@ -365,25 +410,33 @@ function checkLogic($seatnumber,$linenumber)
 
     if($answer != null) return $answer;
 
-    $answer = checkWinner($link);
-    if($answer == true) return $answer;
+    $answer = checkWinner($link,0);
+    if($answer == true) 
+    {
+        //editBD(3,0,3);
+        return $answer;
+    }
 
     $answer = checkDraw($link);
-    if($answer == 1) 
+
+    if($answer != false) 
     {
         editBD(3,0,3);
         return $answer;
     }
-
     $newpos = newposition($link);
 
-    $answer = checkWinner($link);
-    if($answer == true) return $answer;
+    $answer = checkWinner($link,0);
+    if($answer == true) 
+    {
+        //editBD(3,0,3);
+        return $answer;
+    }
 
     $answer = checkDraw($link);
-    if($answer == 1) 
+    if($answer != false) 
     {
-        editBD(4,0,3);
+        editBD(3,0,3);
         return $answer;
     }
     return $newpos;

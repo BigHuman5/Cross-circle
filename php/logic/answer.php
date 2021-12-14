@@ -28,21 +28,17 @@ $json = [
                 if(($CatURL0[1] == 3 || $CatURL0[1] == 5 || $CatURL0[1] == 7) &&
                 ($CatURL1[1] == 0 || $CatURL1[1] == 1 || $CatURL1[1] == 2 || $CatURL1[1] == 3))
                 {
-                    $query = "SELECT * FROM actual_games WHERE id_session = 'fad';";
-                    //$query = "SELECT * FROM actual_games WHERE id_session = '$s_id';";
+                    $query = "SELECT * FROM actual_games WHERE id_session = '$s_id';";
                     $result = mysqli_query($link,$query) or die(mysqli_error($link));
                     if(mysqli_num_rows($result) != 0)
                     {
-                        $query = "DELETE FROM actual_games WHERE id_session = 'fad';";
-                        //$query = "DELETE FROM actual_games WHERE id_session = '$s_id';";
+                        $query = "DELETE FROM actual_games WHERE id_session = '$s_id';";
                         $result = mysqli_query($link,$query) or die(mysqli_error($link));
 
-                        //$query = "DELETE FROM actual_moves WHERE id_session = '$s_id';";
-                        $query = "DELETE FROM actual_moves WHERE id_session = 'fad';";
+                        $query = "DELETE FROM actual_moves WHERE id_session = '$s_id';";
                         $result = mysqli_query($link,$query) or die(mysqli_error($link));
                     }
-                    $query = "INSERT INTO actual_games(id_session,type,lvl) values ('fad',$CatURL0[1],$CatURL1[1]);";
-                    //$query = "INSERT INTO actual_games(id_session,type,lvl) values ('$s_id',$CatURL0[1],$CatURL1[1]);";
+                    $query = "INSERT INTO actual_games(id_session,type,lvl) values ('$s_id',$CatURL0[1],$CatURL1[1]);";
                     $result = mysqli_query($link,$query) or die(mysqli_error($link));
                 }
                 else header('Location: http://localhos'); // ошибка
@@ -51,20 +47,25 @@ $json = [
         }
         elseif($CatURL[0] == "game")      
         {
-            /* Первая просто передаёт значения во фронт сколько рисовать. Вторая уже хода. Юзается для $type */
-            $query = "SELECT * FROM actual_games WHERE id_session = 'fad';";
-            $result = mysqli_query($link,$query) or die(mysqli_error($link));
-            if(mysqli_num_rows($result) != 0)
+            include 'logicGame.php';
+            $json=printJSON(0,0,0);
+            if($json == null)
             {
-                while ($row = mysqli_fetch_array($result)) $type = $row['type'];
-                $json = [
-                    'type' => $type,
-                ]; 
-            }
-            else {
-                $json = [
-                    'type' => 0,
-                ];
+                /* Первая просто передаёт значения во фронт сколько рисовать. Вторая уже хода. Юзается для $type */
+                $query = "SELECT * FROM actual_games WHERE id_session = '$s_id';";
+                $result = mysqli_query($link,$query) or die(mysqli_error($link));
+                if(mysqli_num_rows($result) != 0)
+                {
+                    while ($row = mysqli_fetch_array($result)) $type = $row['type'];
+                    $json = [
+                        'type' => $type,
+                    ]; 
+                }
+                else {
+                    $json = [
+                        'type' => 0,
+                    ];
+                }
             }
             if(count(explode("?", $path[2])) > 1) // Штука нужна передачи того ходов
             {
@@ -74,9 +75,8 @@ $json = [
                 $linenumber = explode("=", $CatURL[1]);
                 if($seatnumber[0] == "seatNumber" && $linenumber[0] == "lineNumber") 
                 {
-                    if($seatnumber[1]>0 && $seatnumber[1]<=$type && $linenumber[1]>0 && $linenumber[1]<=$type)
+                    if($seatnumber[1]>0 && $linenumber[1]>0)
                     {
-                        include 'logicGame.php';
                         $json = checkLogic($seatnumber[1],$linenumber[1]);
                     }
                 }

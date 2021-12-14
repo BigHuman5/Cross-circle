@@ -5,6 +5,7 @@ include 'templates/head.html';
 
 <?php include 'templates/header.php'; ?>
 
+<div class="state"></div>
 <div class="arena"></div>
     <script src="js/game.js"></script>
     </body>
