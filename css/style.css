@@ -72,7 +72,8 @@ header {
 .sector__line {
   display: flex;
   height: 130px;
-  width: 408px;
+  /*width: 408px;*/
+  width: 100%;
   align-items: center;
   justify-content: space-around; }
 
@@ -87,7 +88,7 @@ header {
 {
   height: 130px;
   width: 137px;
-  background-color: #472b08;
+  background-color: #ff7777;
   cursor: pointer;
   border: 1px solid #FA9284; 
 }

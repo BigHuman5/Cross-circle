@@ -7,7 +7,7 @@
     linenumber = 1*
     positionNumber = число
 
-    table:
+    $table:
         0 - компьютер
         1 - человек
         2 - пусто
@@ -113,6 +113,7 @@ function createTable($link)
 
 function checkWinner($link,$info)
 {
+
     if($info == 0) $table = createTable($link);
     else $table=$info;
     $type = $table[0][0];
@@ -120,7 +121,7 @@ function checkWinner($link,$info)
     else $how=3;
     $howrepeat=0;
     $json = "";
-    for($i=0;$i<=1;$i++)
+    for($i=1;$i>=0;$i--)
     {
         // Горизонтально
         for($p=1;$p<=$type;$p++)
@@ -128,13 +129,13 @@ function checkWinner($link,$info)
             for($z=1;$z<$type;$z++)
             {
                 $w=$z+1;
-                if (($table[$p][$z] == $i) && ($table[$p][$w] == $i))
+                if (($table[$p][$z] == $table[$p][$w]) && ($table[$p][$w] == $i))
                 {
                     $n=$p*10+$z;
                     if($howrepeat == 0) $json="$n";
                     else $json="$json, $n";
                     if($w == $type)  {$n=$p*10+$w; $json="$json, $n"; } 
-                    $howrepeat++;
+                    $howrepeat=$howrepeat+1;
                     if($howrepeat == $how)   
                     {
                         if($info == 0) return printJSON(1,$json,$i);
@@ -142,6 +143,9 @@ function checkWinner($link,$info)
                     }
                 }
                 else { $howrepeat=0; $json = ""; }
+                $t1=$table[$p][$z];
+                $t2=$table[$p][$w];
+                //echo nl2br("$p | $z | $w | $t1 || $t2 || $i || $howrepeat\n",false);
             }
             $howrepeat=0; $json = "";
         }
@@ -268,7 +272,7 @@ function checkWinner($link,$info)
             }
         }
     }
-    return null;
+    return 15;
 }
 
 function checkDraw($link)
@@ -288,12 +292,175 @@ function checkDraw($link)
     return printJSON(1,0,3);
 }
 
+function rating($link,$yn,$xn)
+{
+    $table= createTable($link);
+    $type=$table[0][0];
+    $xas=0;
+    $who=2;
+    for($y=1;$y<=$type;$y++)
+        {
+            for($x=1;$x<=$type;$x++)
+            {
+                $table_rating[$y][$x]=0;
+                if($yn!=0) $table_rating[$yn][$xn]=(-30);
+                if($table[$y][$x] == 2)
+                {
+                    if($x==1 && $y!=1 && $y!=$type)
+                    {
+                        if($y==1)
+                        {
+                            if($table[$y][$x+1] == $who) $table_rating[$y][$x]++; // право
+                            if($table[$y+1][$x] == $who) $table_rating[$y][$x]++; // низ
+                            if($table[$y+1][$x+1] == $who) $table_rating[$y][$x]++; //пр низ
+                        }
+                        elseif($y==$type)
+                        {
+                            if($table[$y][$x+1] == $who) $table_rating[$y][$x]++; // пр
+                            if($table[$y-1][$x] == $who) $table_rating[$y][$x]++; //вверх
+                            if($table[$y-1][$x+1] == $who) $table_rating[$y][$x]++; // пр верх
+                        }
+                        else 
+                        {
+                            if($table[$y][$x+1] == $who) $table_rating[$y][$x]++; // право
+                            if($table[$y+1][$x] == $who) $table_rating[$y][$x]++; // низ
+                            if($table[$y+1][$x+1] == $who) $table_rating[$y][$x]++; //пр низ
+                            if($table[$y-1][$x] == $who) $table_rating[$y][$x]++; //вверх
+                            if($table[$y-1][$x+1] == $who) $table_rating[$y][$x]++; // пр верх
+                        }
+                    }
+                    elseif($x==$type && $y!=1 && $y!=$type)
+                    {
+                        if($y==1)
+                        {
+                            if($table[$y+1][$x] == $who) $table_rating[$y][$x]++; // низ
+                            if($table[$y+1][$x-1] == $who) $table_rating[$y][$x]++; // /
+                            if($table[$y][$x-1] == $who) $table_rating[$y][$x]++; // лево
+                        }
+                        elseif($y==$type)
+                        {
+                            if($table[$y-1][$x] == $who) $table_rating[$y][$x]++; //вверх
+                            if($table[$y-1][$x-1] == $who) $table_rating[$y][$x]++; // \
+                            if($table[$y][$x-1] == $who) $table_rating[$y][$x]++; // лево
+                        }
+                        else 
+                        {
+                            if($table[$y][$x-1] == $who) $table_rating[$y][$x]++; // лево
+                            if($table[$y+1][$x] == $who) $table_rating[$y][$x]++; // низ
+                            if($table[$y-1][$x] == $who) $table_rating[$y][$x]++; //вверх
+                            if($table[$y-1][$x-1] == $who) $table_rating[$y][$x]++; // л верх
+                            if($table[$y+1][$x-1] == $who) $table_rating[$y][$x]++; // /
+                        }
+                    }
+                    elseif($y==1)
+                    {
+                        if($x == 1)
+                        {
+                            if($table[$y][$x+1] == $who) $table_rating[$y][$x]++; // право
+                            if($table[$y+1][$x] == $who) $table_rating[$y][$x]++; // низ
+                            if($table[$y+1][$x+1] == $who) $table_rating[$y][$x]++; //пр низ
+                        }
+                        elseif($x == $type)
+                        {
+                            if($table[$y+1][$x] == $who) $table_rating[$y][$x]++; // низ
+                            if($table[$y+1][$x-1] == $who) $table_rating[$y][$x]++; // /
+                            if($table[$y][$x-1] == $who) $table_rating[$y][$x]++; // лево
+                        }
+                        else {
+                            if($table[$y][$x+1] == $who) $table_rating[$y][$x]++; // право
+                            if($table[$y+1][$x] == $who) $table_rating[$y][$x]++; // низ
+                            if($table[$y+1][$x+1] == $who) $table_rating[$y][$x]++; //пр низ
+                            if($table[$y+1][$x-1] == $who) $table_rating[$y][$x]++; // /
+                            if($table[$y][$x-1] == $who) $table_rating[$y][$x]++; // лево
+                        }
+                    }
+                    elseif($y==$type)
+                    {
+                        if($x == 1)
+                        {
+                            if($table[$y][$x+1] == $who) $table_rating[$y][$x]++; // пр
+                            if($table[$y-1][$x] == $who) $table_rating[$y][$x]++; //вверх
+                            if($table[$y-1][$x+1] == $who) $table_rating[$y][$x]++; // пр верх
+                        }
+                        elseif($x == $type)
+                        {
+                            if($table[$y-1][$x] == $who) $table_rating[$y][$x]++; //вверх
+                            if($table[$y-1][$x-1] == $who) $table_rating[$y][$x]++; // \
+                            if($table[$y][$x-1] == $who) $table_rating[$y][$x]++; // лево
+                        }
+                        else{
+                            if($table[$y][$x+1] == $who) $table_rating[$y][$x]++; // пр
+                            if($table[$y-1][$x] == $who) $table_rating[$y][$x]++; //вверх
+                            if($table[$y-1][$x+1] == $who) $table_rating[$y][$x]++; // пр верх
+                            if($table[$y-1][$x-1] == $who) $table_rating[$y][$x]++; // \
+                            if($table[$y][$x-1] == $who) $table_rating[$y][$x]++; // лево
+                        }
+                    }
+                    else{
+                        if($table[$y-1][$x] == $who) $table_rating[$y][$x]++; //вверх
+                        if($table[$y+1][$x] == $who) $table_rating[$y][$x]++; // низ
+
+                        if($table[$y][$x-1] == $who) $table_rating[$y][$x]++; // лево
+                        if($table[$y][$x+1] == $who) $table_rating[$y][$x]++; // пр
+
+                        if($table[$y-1][$x+1] == $who) $table_rating[$y][$x]++; // пр верх
+                        if($table[$y-1][$x-1] == $who) $table_rating[$y][$x]++; // \
+
+                        if($table[$y+1][$x-1] == $who) $table_rating[$y][$x]++; // пр верх
+                        if($table[$y+1][$x+1] == $who) $table_rating[$y][$x]++; // \
+                    }
+                }
+
+                $xas=$table_rating[$y][$x];
+                //echo $xas |"
+            }
+            //echo nl2br("\n",false);
+        }
+    $ymax=1;
+    $xmax=1;
+        for($y=1;$y<=$type;$y++)
+        {
+            for($x=1;$x<=$type;$x++)
+            { 
+                if($table[$ymax][$xmax] == 2)
+                {
+                    if($x!=$type) 
+                    { 
+                        $max_ver=max($table_rating[$y][$x],$table_rating[$y][$x+1]);
+                        if($max_ver==$table_rating[$y][$x+1]) 
+                        {
+                            $ymax=$y;
+                            $xmax=$x;
+                        }
+                    }
+                    elseif($y!=$type) 
+                    {
+                        $max_ver=max($table_rating[$y][$x],$table_rating[$y+1][1]);
+                        if($max_ver==$table_rating[$y+1][1]) 
+                        {
+                            $ymax=$y;
+                            $xmax=$x;
+                        }
+                    }
+                }
+            }
+        }
+        if($table[$ymax][$xmax] == 2) 
+        {
+            if($yn != 0) return 5;
+            else return $ymax*10+$xmax;
+        }
+        elseif($yn == 0) return rating($link,$ymax,$xmax);
+        else {
+            return 5;
+        }
+}
+
 function newposition($link)
 {
     $table = createTable($link);
     $type = $table[0][0];
     $lvl = $table[0][1];
-
     for($y=1;$y<=$type;$y++)
     {
         for($x=1;$x<=$type;$x++)
@@ -303,30 +470,44 @@ function newposition($link)
             {
                 $table[$y][$x] = 0;
                 $newpos=checkWinner($link,$table);
-                if($newpos != null)
+                //echo nl2br("$newpos | $y | $x | $meaning_table | $sta\n",false);
+                if($newpos != 15)
                 {
-                $newpos = $y*10+$x;
-                $lvl=15; // Победит компьютер
-                $x=$type+1;
-                $y=$type+1;
+                //echo nl2br("$newpos\n",false);
+                $newpos = $y*10+$x; // Победит компьютер
+                editBD(0,$newpos,0);
+                return printJSON(1,0,4);
                 }
-                else
+            }
+            $table[$y][$x]=$meaning_table;
+        }
+    }
+    if($lvl == 2)
+    {
+        for($y=1;$y<=$type;$y++)
+        {
+            for($x=1;$x<=$type;$x++)
+            {
+                $meaning_table=$table[$y][$x];
+                if($meaning_table == 2)
                 {
                     $table[$y][$x] = 1;
                     $newpos=checkWinner($link,$table);
-                    if($newpos != null)
+                    if($newpos != 15)
                     {
                         $newpos = $y*10+$x;
-                        $lvl=15; // Мешаем победить человеку.
-                        $x=$type+1;
-                        $y=$type+1;
+                        // Мешаем победить человеку.
+                        editBD(0,$newpos,0);
+                        return printJSON(1,0,4);
                     }
+                    $table[$y][$x]=$meaning_table;
                 }
-                $table[$y][$x]=$meaning_table;
             }
-        }
+         }
+        $newpos = rating($link,0,0);
+        if($newpos == 5) $lvl=1;
+        
     }
-
     if($lvl == 1)
     {
         $while=0;
@@ -410,8 +591,9 @@ function checkLogic($seatnumber,$linenumber)
 
     if($answer != null) return $answer;
 
+
     $answer = checkWinner($link,0);
-    if($answer == true) 
+    if($answer != 15) 
     {
         //editBD(3,0,3);
         return $answer;
@@ -427,7 +609,7 @@ function checkLogic($seatnumber,$linenumber)
     $newpos = newposition($link);
 
     $answer = checkWinner($link,0);
-    if($answer == true) 
+    if($answer != 15) 
     {
         //editBD(3,0,3);
         return $answer;

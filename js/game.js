@@ -52,8 +52,28 @@ function renderArena(option)
                     if(win[n] == number) 
                     {
                         rendertext+=`<div class="sector__seat__red" data-seat-number=`+x+`>`;
-                        n=15;
-                        number=0;
+                        //number=0;
+                        for(var n=0;n<move_1.length;n++)
+                    {
+                        if(move_1[n] == number) 
+                        {
+                            rendertext+=`<img src="jpg/Group 7.svg" alt="Круг">`;
+                            n=15;
+                            number=0;
+                        }
+                    }
+                    //
+                    for(var n=0;n<move_2.length;n++)
+                    {
+                        if(move_2[n] == number) 
+                        {
+                            rendertext+=`<img src="jpg/Group 6.svg" alt="Крест">`;
+                            n=15;
+                            number=0;
+                        }
+                    }
+                    n=15;
+                    number=0;
                     }
                 }
             }
@@ -69,7 +89,7 @@ function renderArena(option)
                     {
                         if(move_1[n] == number) 
                         {
-                            rendertext+=`<img src="jpg/Group 7.svg" alt="Крест">`;
+                            rendertext+=`<img src="jpg/Group 7.svg" alt="Круг">`;
                             n=15;
                             number=0;
                         }
@@ -91,7 +111,7 @@ function renderArena(option)
         rendertext+=`</div>`;
     }
     rendertext+=`</div>`;
-    document.querySelector("div.state").innerHTML=state;
+    //document.querySelector("div.state").innerHTML=state;
     document.querySelector("div.arena").innerHTML=rendertext;
 }
 

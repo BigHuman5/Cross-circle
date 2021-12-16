@@ -24,7 +24,6 @@ function checkBD($link)
         }
     }
 
-//24 38 46
     $json=
     [
         "g3c" => $count_who_win[3][0],
