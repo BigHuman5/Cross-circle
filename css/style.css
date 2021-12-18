@@ -168,4 +168,22 @@ header {
 {
   width:80%;
 }
+
+.state ul {
+  max-width: 400px;
+  list-style: none;
+  text-align: center;
+  margin: 0 auto;
+  margin-top: 76px; }
+  .state ul li {
+    padding-bottom: 97px; }
+    .state ul li a {
+      font-size: 48px;
+      color: #FFFFFF;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      padding: 17px 21px;
+      background-color: #FF6738;
+      border-radius: 20px; }
 /*# sourceMappingURL=style.css.map */

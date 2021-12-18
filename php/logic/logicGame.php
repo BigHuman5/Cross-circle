@@ -411,13 +411,20 @@ function rating($link,$yn,$xn)
                     }
                 }
 
-                $xas=$table_rating[$y][$x];
+                //$xas=$table_rating[$y][$x];
                 //echo $xas |"
             }
             //echo nl2br("\n",false);
         }
     $ymax=1;
     $xmax=1;
+    for($y=1;$y<=$type;$y++)
+    {
+        for($x=1;$x<=$type;$x++)
+        {
+            if($table[$y][$x] != 2) $table_rating[$y][$x]-=30;
+        }
+    }
         for($y=1;$y<=$type;$y++)
         {
             for($x=1;$x<=$type;$x++)

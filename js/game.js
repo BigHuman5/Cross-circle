@@ -31,7 +31,7 @@ function renderArena(option)
                 state=state+`Ничья!`;
             }
             state=state+`</h1>
-            <ul><li><a href="/" '>Новая</a></li></ul>`;
+            <ul><li><a href="/" '>Новая игра</a></li></ul>`;
             document.querySelector("div.state").innerHTML=state;
             window.Bignumber=1;
     }
